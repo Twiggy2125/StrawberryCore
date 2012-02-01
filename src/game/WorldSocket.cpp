@@ -255,11 +255,11 @@ int WorldSocket::open(void *a)
     // Send startup packet.
     WorldPacket packet(SMSG_AUTH_CHALLENGE, 37);
 
+    packet << uint8(1);
+    packet << m_Seed;
+    
     for (uint32 i = 0; i < 8; i++)
         packet << uint32(0);
-
-    packet << m_Seed;
-    packet << uint8(1);
 
     if (SendPacket (packet) == -1)
         return -1;
