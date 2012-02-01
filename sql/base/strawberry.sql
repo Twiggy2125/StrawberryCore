@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50519
 File Encoding         : 65001
 
-Date: 2012-02-01 13:46:32
+Date: 2012-02-01 13:56:40
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -3517,7 +3517,7 @@ CREATE TABLE `opcodes` (
 -- ----------------------------
 -- Records of opcodes
 -- ----------------------------
-INSERT INTO opcodes VALUES ('CMSG_AUTH_SESSION', '4352', '15050', '15050');
+INSERT INTO opcodes VALUES ('CMSG_AUTH_SESSION', '16450', '15211', '15211');
 INSERT INTO opcodes VALUES ('CMSG_CREATURE_STATS', '24224', '15050', '15050');
 INSERT INTO opcodes VALUES ('CMSG_GAME_OBJECT_STATS', '27136', '15050', '15050');
 INSERT INTO opcodes VALUES ('CMSG_KEEP_ALIVE', '26272', '15050', '15050');

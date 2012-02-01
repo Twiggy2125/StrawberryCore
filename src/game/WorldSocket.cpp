@@ -756,19 +756,19 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     recvPacket.read_skip<uint32>();
     recvPacket.read(digest, 1);
-    recvPacket.read_skip<uint64>();
     recvPacket.read_skip<uint32>();
-    recvPacket.read(digest, 1);
     recvPacket.read_skip<uint32>();
-    recvPacket.read(digest, 1);
-    recvPacket.read_skip<uint32>();
-    recvPacket.read(digest, 7);
+    recvPacket.read(digest, 9);
     recvPacket >> clientBuild;
-    recvPacket.read(digest, 8);
+    recvPacket.read(digest, 1);
+    recvPacket.read_skip<uint64>();
     recvPacket.read_skip<uint8>();
     recvPacket.read_skip<uint8>();
-    recvPacket >> clientSeed;
     recvPacket.read(digest, 2);
+    recvPacket.read_skip<uint32>();
+    recvPacket.read(digest, 2);
+    recvPacket >> clientSeed;
+    recvPacket.read(digest, 5);
 
     recvPacket >> m_addonSize;                            // addon data size
 
