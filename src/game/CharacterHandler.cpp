@@ -196,7 +196,7 @@ void WorldSession::HandleResponseCharacterEnum(QueryResult * result)
             uint64 GuildGuid = (*itr).second;
 
             uint8 guidMask[8] = { 7, 4, 6, 3, 5, 7, 0, 1 };
-            uint8 guildGuidMask[8] = { 1, 6, 7, 3, 5, 4, 2, 0};
+            uint8 guildGuidMask[8] = { 1, 6, 7, 3, 5, 4, 2, 0 };
 
             data.WriteGuidMask(Guid, guidMask, 1, 0);
             data.WriteGuidMask(GuildGuid, guildGuidMask, 2, 0);
@@ -256,7 +256,7 @@ void WorldSession::HandleResponseCharacterEnumOpcode( WorldPacket & /*recv_data*
         PET_SAVE_AS_CURRENT, GetAccountId());
 }
 
-void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
+void WorldSession::HandleResponseCharacterCreateOpcode( WorldPacket & recv_data )
 {
     std::string name;
     uint8 race_, class_;
@@ -271,7 +271,7 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
     recv_data >> gender >> skin >> face;
     recv_data >> hairStyle >> hairColor >> facialHair >> outfitId;
 
-    WorldPacket data(SMSG_CHAR_CREATE, 1);                  // returned with diff.values in all cases
+    WorldPacket data(SMSG_RESPONSE_CHARACTER_CREATE, 1);                  // returned with diff.values in all cases
 
     if(GetSecurity() == SEC_PLAYER)
     {

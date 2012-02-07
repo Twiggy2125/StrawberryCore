@@ -412,7 +412,7 @@ class STRAWBERRY_DLL_SPEC WorldSession
 
         void HandleResponseCharacterEnumOpcode(WorldPacket& recvPacket);
         void HandleCharDeleteOpcode(WorldPacket& recvPacket);
-        void HandleCharCreateOpcode(WorldPacket& recvPacket);
+        void HandleResponseCharacterCreateOpcode(WorldPacket& recvPacket);
 
         void HandleLoadingScreenNotify(WorldPacket& recvPacket);
         void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
