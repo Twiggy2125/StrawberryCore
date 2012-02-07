@@ -896,7 +896,7 @@ class STRAWBERRY_DLL_SPEC WorldSession
 
         // this stores the GUIDs of the characters who can login
         // characters who failed on Player::BuildEnumData shouldn't login
-        std::set<uint32> _allowedCharsToLogin;
+        std::set<uint64> _allowedCharsToLogin;
 
         uint32 m_GUIDLow;                                   // set logged or recently logout player (while m_playerRecentlyLogout set)
         Player *_player;

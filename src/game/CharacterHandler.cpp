@@ -221,11 +221,7 @@ void WorldSession::HandleResponseCharacterEnum(QueryResult * result)
         data.append(buffer);
     }
     else
-    {
-        data.WriteBits(0, 23);
-        data.WriteBit(1);
         data.FlushBits();
-    }
 
     SendPacket(&data);
 }
