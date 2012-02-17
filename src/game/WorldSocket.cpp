@@ -755,10 +755,14 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     WorldPacket packet;
 
     recvPacket.read_skip<uint32>();
-    recvPacket.read(digest, 6);
+    recvPacket.read(digest, 4);
+    recvPacket.read_skip<uint8>();
+    recvPacket.read(digest, 1);
     recvPacket.read_skip<uint32>();
     recvPacket.read_skip<uint32>();
-    recvPacket.read(digest, 6);
+    recvPacket.read(digest, 2);
+    recvPacket.read_skip<uint8>();
+    recvPacket.read(digest, 3);
     recvPacket >> clientBuild;
     recvPacket.read(digest, 1);
     recvPacket.read_skip<uint32>();
