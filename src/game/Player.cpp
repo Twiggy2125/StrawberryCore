@@ -1482,9 +1482,6 @@ bool Player::BuildEnumData( QueryResult * result, ByteBuffer * p_data )
     uint64 Guid = fields[0].GetUInt64();
     uint64 GuildGuid = fields[0].GetUInt64();
 
-    uint8 guidMask[8] = { 3, 4, 5, 6, 0, 7, 1, 2 };
-    uint8 guildGuidMask[8] = { 2, 3, 6, 7, 0, 1, 4, 5 };
-
     uint8 pRace = fields[2].GetUInt8();
     uint8 pClass = fields[3].GetUInt8();
     uint8 gender = fields[4].GetUInt8();
@@ -1497,6 +1494,11 @@ bool Player::BuildEnumData( QueryResult * result, ByteBuffer * p_data )
     uint32 petLevel   = 0;
     uint32 petFamily  = 0;
     uint32 char_flags = 0;
+
+    uint8 Guid0 = uint8(Guid);
+    uint8 Guid1 = uint8(Guid >> 8);
+    uint8 Guid2 = uint8(Guid >> 16);
+    uint8 Guid3 = uint8(Guid >> 24);
 
     // show pet at selection character in character list only for non-ghost character
     if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (pClass == CLASS_WARLOCK || pClass == CLASS_HUNTER || pClass == CLASS_DEATH_KNIGHT))
@@ -1535,29 +1537,6 @@ bool Player::BuildEnumData( QueryResult * result, ByteBuffer * p_data )
         return false;
     }
 
-    *p_data << uint8(0);                                    // char order id
-
-    p_data->WriteGuidBytes(GuildGuid, guildGuidMask, 1, 0);
-
-    *p_data << uint32(petFamily);                           // Pet Family
-    *p_data << uint32(char_flags);                          // character flags
-
-    p_data->WriteGuidBytes(Guid, guidMask, 1, 0);
-
-    *p_data << fields[12].GetFloat();                       // z
-
-    p_data->WriteGuidBytes(Guid, guidMask, 2, 1);
-    p_data->WriteGuidBytes(GuildGuid, guildGuidMask, 1, 1);
-
-    *p_data << uint8(playerBytes);                          // skin
-
-    p_data->WriteGuidBytes(GuildGuid, guildGuidMask, 1, 2);
-
-    *p_data << uint32(zone);                                // Zone id
-
-    p_data->WriteGuidBytes(Guid, guidMask, 1, 3);
-    p_data->WriteGuidBytes(GuildGuid, guildGuidMask, 1, 3);
-
     Tokens data = StrSplit(fields[19].GetCppString(), " ");
     for (uint8 slot = 0; slot < EQUIPMENT_SLOT_END; slot++)
     {
@@ -1566,9 +1545,9 @@ bool Player::BuildEnumData( QueryResult * result, ByteBuffer * p_data )
         const ItemPrototype * proto = ObjectMgr::GetItemPrototype(item_id);
         if(!proto)
         {
+            *p_data << uint32(0);
+            *p_data << uint32(0);
             *p_data << uint8(0);
-            *p_data << uint32(0);
-            *p_data << uint32(0);
             continue;
         }
 
@@ -1586,53 +1565,64 @@ bool Player::BuildEnumData( QueryResult * result, ByteBuffer * p_data )
                 break;
         }
 
-        *p_data << uint8(proto->InventoryType);
-        *p_data << uint32(proto->DisplayInfoID);
         *p_data << uint32(enchant ? enchant->aura_id : 0);
+        *p_data << uint32(proto->DisplayInfoID);
+        *p_data << uint8(proto->InventoryType);
     }
 
     for (int32 i = 0; i < 4; i++)
     {
+        *p_data << uint32(0);
+        *p_data << uint32(0);
         *p_data << uint8(0);
-        *p_data << uint32(0);
-        *p_data << uint32(0);
     }
 
-    *p_data << uint8(playerBytes >> 24);                    // Hair color
-
-    p_data->WriteGuidBytes(Guid, guidMask, 2, 4);
-    p_data->WriteGuidBytes(GuildGuid, guildGuidMask, 1, 4);
-
-    *p_data << uint8(gender);                               // Gender
-    p_data->append(fields[1].GetCppString().c_str(), fields[1].GetCppString().size());
-    *p_data << uint8(level);                                // Level
-    *p_data << fields[10].GetFloat();                       // x
-    *p_data << uint8(pRace);                                // Race
-
-    p_data->WriteGuidBytes(Guid, guidMask, 1, 6);
-
+    *p_data << uint32(zone);                                // Zone id
     *p_data << uint32(petLevel);                            // pet level
-
-    p_data->WriteGuidBytes(Guid, guidMask, 1, 7);
+    *p_data << uint32(char_flags);                          // character flags
 
     uint32 playerBytes2 = fields[6].GetUInt32();
     *p_data << uint8(playerBytes2 & 0xFF);                  // facial hair
 
-    // character customize flags
-    *p_data << uint32(atLoginFlags & AT_LOGIN_CUSTOMIZE ? CHAR_CUSTOMIZE_FLAG_CUSTOMIZE : CHAR_CUSTOMIZE_FLAG_NONE);
+    if (Guid0)
+        *p_data << uint8(Guid0 ^ 1);
 
-    p_data->WriteGuidBytes(GuildGuid, guildGuidMask, 1, 5);
+    if (Guid2)
+        *p_data << uint8(Guid2 ^ 1);
 
-    *p_data << uint8(playerBytes >> 8);                     // face
+    *p_data << uint8(0);                                    // char order id
+    *p_data << uint32(petFamily);                           // Pet Family
+
+    if (Guid3)
+        *p_data << uint8(Guid3 ^ 1);
+
     *p_data << uint8(pClass);                               // class
+
+    *p_data << fields[10].GetFloat();                       // x
+
+    if (Guid1)
+        *p_data << uint8(Guid1 ^ 1);
+
+    *p_data << uint8(pRace);                                // Race
     *p_data << uint32(petDisplayId);                        // Pet DisplayID
 
-
     *p_data << fields[11].GetFloat();                       // y
-    *p_data << uint32(fields[9].GetUInt32());               // map
-    *p_data << uint8(playerBytes >> 16);                    // Hair style
 
-    p_data->WriteGuidBytes(GuildGuid, guildGuidMask, 2, 7);
+    *p_data << uint8(gender);                               // Gender
+    *p_data << uint8(playerBytes >> 16);                    // Hair style
+    *p_data << uint8(level);                                // Level
+
+    *p_data << fields[12].GetFloat();                       // z
+
+    // character customize flags
+    *p_data << uint32(atLoginFlags & AT_LOGIN_CUSTOMIZE ? CHAR_CUSTOMIZE_FLAG_CUSTOMIZE : CHAR_CUSTOMIZE_FLAG_NONE);
+    
+    *p_data << uint8(playerBytes);                          // skin
+    *p_data << uint8(playerBytes >> 24);                    // Hair color
+    *p_data << uint8(playerBytes >> 8);                     // face
+    *p_data << uint32(fields[9].GetUInt32());                  // map
+
+    p_data->append(fields[1].GetCppString().c_str(), fields[1].GetCppString().size());
 
     return true;
 }

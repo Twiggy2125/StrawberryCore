@@ -148,9 +148,8 @@ void WorldSession::HandleResponseCharacterEnum(QueryResult * result)
     WorldPacket data(SMSG_RESPONSE_CHARACTER_ENUM, 270);
 
     data.WriteBits(0, 23);
-
     data.WriteBits(result ? (*result).GetRowCount() : 0 , 17);
-
+    
     std::vector<charEnumInfo> charInfoList;
     charInfoList.resize(result ? (*result).GetRowCount() : 0);
 
