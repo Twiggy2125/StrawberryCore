@@ -148,7 +148,6 @@ void WorldSession::HandleResponseCharacterEnum(QueryResult * result)
     WorldPacket data(SMSG_RESPONSE_CHARACTER_ENUM, 270);
 
     data.WriteBits(0, 23);
-    data.WriteBit(1);
 
     data.WriteBits(result ? (*result).GetRowCount() : 0 , 17);
 
@@ -195,33 +194,42 @@ void WorldSession::HandleResponseCharacterEnum(QueryResult * result)
             uint64 Guid = (*itr).first;
             uint64 GuildGuid = (*itr).second;
 
-            uint8 guidMask[8] = { 7, 4, 6, 3, 5, 7, 0, 1 };
-            uint8 guildGuidMask[8] = { 1, 6, 7, 3, 5, 4, 2, 0 };
+            uint8 guidMask[8] = { 0, 3, 2, 6, 5, 7, 1, 4 };
+            uint8 guildGuidMask[8] = { 0, 6, 3, 2, 5, 7, 1, 4 };
 
             data.WriteGuidMask(Guid, guidMask, 1, 0);
-            data.WriteGuidMask(GuildGuid, guildGuidMask, 2, 0);
-
-            data.WriteBits(charInfoList[counter].nameLenghts, 7);
-
+            data.WriteGuidMask(GuildGuid, guildGuidMask, 1, 0);
             data.WriteGuidMask(Guid, guidMask, 1, 1);
+            data.WriteGuidMask(GuildGuid, guildGuidMask, 1, 1);
 
             data.WriteBit(charInfoList[counter].firstLogin ? 1 : 0);
 
             data.WriteGuidMask(Guid, guidMask, 2, 2);
-            data.WriteGuidMask(GuildGuid, guildGuidMask, 4, 2);
-            data.WriteGuidMask(Guid, guidMask, 2, 4);
+
+            data.WriteBits(charInfoList[counter].nameLenghts, 7);
+
+            data.WriteGuidMask(Guid, guidMask, 1, 4);
+            data.WriteGuidMask(GuildGuid, guildGuidMask, 2, 2);
+            data.WriteGuidMask(Guid, guidMask, 1, 5);
+            data.WriteGuidMask(GuildGuid, guildGuidMask, 2, 4);
+            data.WriteGuidMask(Guid, guidMask, 1, 6);
             data.WriteGuidMask(GuildGuid, guildGuidMask, 1, 6);
-            data.WriteGuidMask(Guid, guidMask, 2, 6);
+            data.WriteGuidMask(Guid, guidMask, 1, 7);
             data.WriteGuidMask(GuildGuid, guildGuidMask, 1, 7);
 
             counter++;
         }
 
+        data.WriteBit(1);
         data.FlushBits();
+
         data.append(buffer);
     }
     else
+    {
+        data.WriteBit(1);
         data.FlushBits();
+    }
 
     SendPacket(&data);
 }
@@ -632,14 +640,14 @@ void WorldSession::HandlePlayerLoginOpcode( WorldPacket & recv_data )
 
     ByteBuffer bytes(8, true);
 
+    if (mask[5]) bytes[1] = recv_data.ReadUInt8() ^ 1;
     if (mask[2]) bytes[4] = recv_data.ReadUInt8() ^ 1;
-    if (mask[5]) bytes[6] = recv_data.ReadUInt8() ^ 1;
-    if (mask[4]) bytes[2] = recv_data.ReadUInt8() ^ 1;
-    if (mask[6]) bytes[5] = recv_data.ReadUInt8() ^ 1;
-    if (mask[3]) bytes[7] = recv_data.ReadUInt8() ^ 1;
-    if (mask[7]) bytes[1] = recv_data.ReadUInt8() ^ 1;
-    if (mask[0]) bytes[0] = recv_data.ReadUInt8() ^ 1;
-    if (mask[1]) bytes[3] = recv_data.ReadUInt8() ^ 1;
+    if (mask[1]) bytes[7] = recv_data.ReadUInt8() ^ 1;
+    if (mask[7]) bytes[2] = recv_data.ReadUInt8() ^ 1;
+    if (mask[6]) bytes[3] = recv_data.ReadUInt8() ^ 1;
+    if (mask[0]) bytes[6] = recv_data.ReadUInt8() ^ 1;
+    if (mask[4]) bytes[0] = recv_data.ReadUInt8() ^ 1;
+    if (mask[3]) bytes[5] = recv_data.ReadUInt8() ^ 1;
 
     playerGuid = BitConverter::ToUInt64(bytes);
 
