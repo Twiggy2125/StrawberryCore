@@ -767,12 +767,10 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     recvPacket.read(digest, 1);
     recvPacket.read_skip<uint32>();
     recvPacket.read(digest, 6);
-    recvPacket.read_skip<uint32>();
+    recvPacket >> clientSeed;
     recvPacket.read(digest, 1);
     recvPacket.read_skip<uint64>();
     recvPacket.read(digest, 2);
-
-    recvPacket >> clientSeed;
 
     recvPacket >> m_addonSize;                            // addon data size
 
